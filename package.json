@@ -1,16 +1,27 @@
 {
-  "name": "vanilla-redux",
+  "name": "vanilla-js-book-list",
   "version": "1.0.0",
-  "description": "",
-  "main": "main.js",
+  "description": "##change directory     $ cd src",
+  "main": "index.js",
   "scripts": {
-    "build": "babel --presents es2015 src -d dist"
+    "build": "babel src -d dist"
+  },
+  "scripts": {
+    "build": "babel --presets es2015 src -d dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wahabAwudu/vanilla-js-book-list.git"
   },
   "author": "",
   "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/wahabAwudu/vanilla-js-book-list/issues"
+  },
+  "homepage": "https://github.com/wahabAwudu/vanilla-js-book-list#readme",
   "devDependencies": {
-    "axios": "^0.18.0",
-    "babel-cli": "^6.26.0",
-    "babel-preset-es2015": "^6.24.1"
+    "@babel/cli": "^7.2.3",
+    "@babel/core": "^7.4.0",
+    "@babel/preset-env": "^7.4.2"
   }
 }

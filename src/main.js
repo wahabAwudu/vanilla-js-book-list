@@ -9,10 +9,11 @@ class Book {
     // list books function
     static listBooks() {
         const book_list = JSON.parse(localStorage.getItem('books_list'));
-
+        if(book_list) {
         book_list.forEach(book => {
             UI.addToDom(book);
         });
+        }
     }
     // end list books function
     
@@ -20,6 +21,7 @@ class Book {
     static addBook(book) {
         // update existing book list in local storage
         let books_list = JSON.parse(localStorage.getItem('books_list'));
+        if(books_list) {
         books_list.push(book);
         localStorage.setItem('books_list', JSON.stringify(books_list));
 
@@ -28,6 +30,18 @@ class Book {
 
         // show alert
         UI.showAlert('success', 'Book Added Successfully!');
+        } else {
+        let books = [];
+        books.push(book);
+        localStorage.setItem('books_list', JSON.stringify(books));
+
+        // add to dom
+        UI.addToDom(book);
+
+        // show alert
+        UI.showAlert('success', 'Book Added Successfully!');
+        }
+
     }
     // end add book function
 

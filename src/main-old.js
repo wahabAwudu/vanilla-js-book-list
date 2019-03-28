@@ -1,89 +1,148 @@
-// add new books
+// Book class
 class Book {
     constructor(title, author, isbn) {
         this.title = title;
         this.author = author;
         this.isbn = isbn;
     }
-
-}
-
-// takes care of ui changes
-class UI {
-    // display books function
-   static displayBooks() {
-    const storedBooks = [
-        {
-            title: "Things Fall Apart",
-            author: "Chinua Achibe",
-            isbn: 4556653,
-        },
-        {
-            title: "Blakee is a Black Cat",
-            author: "Peggy Oppong",
-            isbn: 8894532,
-        }
-    ];
-    const books = storedBooks;
     
-    // books array loop
-    books.forEach((book)=> UI.addBooksToList(book));
-    // end books array loop
+    // list books function
+    static listBooks() {
+        const book_list = JSON.parse(localStorage.getItem('books_list'));
 
-   }
-   // end display books function
+        book_list.forEach(book => {
+            UI.addToDom(book);
+        });
+    }
+    // end list books function
+    
+    // add book function
+    static addBook(book) {
+        // update existing book list in local storage
+        let books_list = JSON.parse(localStorage.getItem('books_list'));
+        books_list.push(book);
+        localStorage.setItem('books_list', JSON.stringify(books_list));
 
-   // add books to list method
-   static addBooksToList(book) {
-    let table_body = document.getElementById('table-body');
-        let new_row = document.createElement('tr');
-        new_row.innerHTML = `
+        // add to dom
+        UI.addToDom(book);
+
+        // show alert
+        UI.showAlert('success', 'Book Added Successfully!');
+    }
+    // end add book function
+
+    static removeBook(event) {
+        let isbn = event.target.parentElement.previousElementSibling.textContent;
+        // remove from storage
+        Store.removeBookFromStore(isbn);
+        
+        // remove from dom
+        UI.removeFromDom(event);
+
+        // show alert
+        UI.showAlert('success', 'Book Deleted!');
+    }
+}
+// end Book class
+
+
+// UI class
+class UI {
+    // add to dom function
+    static addToDom(book) {
+        let table_body = document.getElementById('table-body');
+
+        let table_row = document.createElement('tr');
+        table_row.innerHTML = `
         <td>${book.title}</td>
         <td>${book.author}</td>
         <td>${book.isbn}</td>
-        <td><a href="#" id="delete-button" class="btn btn-danger delete">x</a></td>
+        <td>
+        <a href="#" class="btn btn-danger btn-sm delete" id="delete-button" onclick="Store.removeBookFromStore(${book.isbn})">X</a>
+        </td>
         `;
+
+        table_body.appendChild(table_row);
+
+    }
+    // end add to dom function
     
-        table_body.appendChild(new_row);
-   }
-   // end add books to list method
+    // remove from dom function
+    static removeFromDom(event) {
+        let element = event.target;
+        if(element.classList.contains('delete')) {
+            element.parentElement.parentElement.remove();
+        }
+    }
+    // end remove from dom function
 
-   // remove book
-   static removeBook(element) {
-       if(element.classList.contains('delete')) {
-           element.parentElement.parentElement.remove();
-       }
-   }
+    // clear fields function
+    static clearFields() {
+        document.getElementById('title').value = '';
+        document.getElementById('author').value = '';
+        document.getElementById('isbn').value = '';
+    }
+    // end clear fields function
 
-   // clear fields method
-   static clearFields() {
-       document.getElementById('title').value = '';
-       document.getElementById('author').value = '';
-       document.getElementById('isbn').value = '';
-   }
+    // show alert
+    static showAlert(alert_class, message) {
+        let div = document.createElement('div');
+        div.className = `alert alert-${alert_class}`;
+        div.innerHTML = message;
+
+        let alert_section = document.getElementById('alert-section');
+        alert_section.appendChild(div);
+
+        // remove alert after 3 seconds
+        setTimeout(() => {
+            document.querySelector('.alert').remove();
+        }, 3000);
+    }
 
 }
+// end UI class
 
 
-// events to load in, add, remove books
-document.addEventListener('DOMContentLoaded', UI.displayBooks());
 
-// add new books
-let button = document.getElementById('book-form');
+// STORE CLASS
+class Store {
+    static removeBookFromStore(isbn) {
+        let books_list = JSON.parse(localStorage.getItem('books_list'));
+        books_list.forEach((book, index)=> {
+            if(book.isbn === isbn) {
+                books_list.splice(index, 1);
+            }
+        });
 
-button.addEventListener('submit', (e)=> {
-    e.preventDefault();
-    const title = document.getElementById('title').value;
-    const author = document.getElementById('author').value;
-    const isbn = document.getElementById('isbn').value;
+        localStorage.setItem('books_list', JSON.stringify(books_list));
+    }
+}
 
+            /* EVENTS */
+// display books
+document.addEventListener('DOMContentLoaded', Book.listBooks());
 
-    let new_book = new Book(title, author, isbn);
-    UI.addBooksToList(new_book);
-    UI.clearFields();
+// add book to list
+document.getElementById('book-form').addEventListener('submit', (e) => {
+  e.preventDefault();
+  // get form fields
+  let book_title = document.getElementById('title').value;
+  let book_author = document.getElementById('author').value;
+  let book_isbn = document.getElementById('isbn').value;
+  
+  // create a new book object
+  let new_book = new Book(book_title, book_author, book_isbn);
+  // add new book to list
+  Book.addBook(new_book);
+
+  // clear fields
+  UI.clearFields();
+
 });
 
-document.getElementById('delete-button').addEventListener('click', (e)=> {
-    e.preventDefault();
-    UI.removeBook(e.target);
+// remove book from list
+document.getElementById('table-body').addEventListener('click', (e) => {
+    Book.removeBook(e);
 });
+
+// onclick="UI.removeFromDom(${book.isbn})"
